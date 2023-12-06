@@ -105,6 +105,34 @@ void setup()
   defaultTimer.reset();
 }
 
+bool victoryCheck()
+{
+	bool victory = false;
+	if (hitCount == NUM_TARGETS)
+	{
+		Serial.println("WINNER");
+		hitCount = 0;		
+		victory = true;
+	}
+	return victory;
+}
+
+void inputCheck()
+{
+    String data = Serial.readString();  //read until timeout
+    data.trim();                        // remove any \r \n whitespace at the end of the String
+
+    if (data == "r")
+    {
+      String targetStatus = "";
+      for (int i = 0; i < NUM_TARGETS; i++)
+      {
+        targetStatus = targetStatus + targets[i].isHit;
+      }
+      Serial.println(targetStatus);
+    }	
+}
+
 void allTargets()
 {
   initialLEDSetup("b");
@@ -123,26 +151,14 @@ void allTargets()
       }
     }
 
-    if (hitCount == NUM_TARGETS)
+    if (victoryCheck())
     {
-      Serial.println("WINNER");
-      hitCount = 0;
       delay(3000);
       initialLEDSetup("b");
     }
+		
+		inputCheck();
 
-    String data = Serial.readString();  //read until timeout
-    data.trim();                        // remove any \r \n whitespace at the end of the String
-
-    if (data == "r")
-    {
-      String targetStatus = "";
-      for (int i = 0; i < NUM_TARGETS; i++)
-      {
-        targetStatus = targetStatus + targets[i].isHit;
-      }
-      Serial.println(targetStatus);
-    }
   }
 }
 
@@ -179,12 +195,9 @@ void randomTarget()
         targets[targetNumber].isHit = true;
       }
     }
-
-    // Have all targets been hit
-    if (hitCount == NUM_TARGETS)
+		
+		if (victoryCheck())
     {
-      Serial.println("WINNER");
-      hitCount = 0;
       delay(3000);
       initialLEDSetup("o");
     }
